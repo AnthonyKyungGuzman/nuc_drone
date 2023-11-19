@@ -3,11 +3,14 @@
 <package format="3">
   <name>usb_comm</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="intel@todo.todo">intel</maintainer>
+  <description>Sends data through USB port to CUBE</description>
+  <maintainer email="kyung.guzman@gmail.com">Anthony Kyung Guzman Leguel</maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp</depend>
+
+  <exec_depend>ros2launch</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
