@@ -114,8 +114,10 @@ class USBSerialComm : public rclcpp::Node
         // usleep ((7 + 25) * 100);             // sleep enough to transmit the 7 plus
                                             // receive 25:  approx 100 uS per char transmit
 
-// // char buf [100];
-// int n = read (fd, buf, sizeof buf);  // read up to 100 characters if ready to read
+        char buf [10];
+        int n = read(fd, buf, 4);  // read up to 100 characters if ready to read
+        std::string message(buf);
+        std::cout << "recv message " << message <<std::endl;
     }
     rclcpp::TimerBase::SharedPtr timer_;
 //    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
