@@ -18,7 +18,8 @@ int set_interface_attribs (int fd, int speed, int parity)
         struct termios tty;
         if (tcgetattr (fd, &tty) != 0)
         {
-                error_message ("error %d from tcgetattr", errno);
+//                error_message ("error %d from tcgetattr", errno);
+		std::cout << "Error " << errno << "from tcgetattr\n";
                 return -1;
         }
 
@@ -46,7 +47,8 @@ int set_interface_attribs (int fd, int speed, int parity)
 
         if (tcsetattr (fd, TCSANOW, &tty) != 0)
         {
-                error_message ("error %d from tcsetattr", errno);
+//                error_message ("error %d from tcsetattr", errno);
+		std::cout << "Error " << errno << " from tcsetattr\n";                                
                 return -1;
         }
         return 0;
@@ -59,7 +61,8 @@ void set_blocking (int fd, int should_block)
         memset (&tty, 0, sizeof tty);
         if (tcgetattr (fd, &tty) != 0)
         {
-                error_message ("error %d from tggetattr", errno);
+//                error_message ("error %d from tggetattr", errno);
+		std::cout << "Error " << errno << " from tggetattr\n";                
                 return;
         }
 
@@ -67,7 +70,10 @@ void set_blocking (int fd, int should_block)
         tty.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
 
         if (tcsetattr (fd, TCSANOW, &tty) != 0)
-                error_message ("error %d setting term attributes", errno);
+	{
+               // error_message ("error %d setting term attributes", errno);
+		std::cout << "Error " << errno << " setting term attributes\n";
+	}
 }
 
 
@@ -84,14 +90,14 @@ class USBSerialComm : public rclcpp::Node
     //   publisher_ = this->create_publisher<std_msgs::msg::String>("topic", 10);
         this->declare_parameter("serial_port", "/dev/ttyUSB1");
         portName_ = this->get_parameter("serial_port").as_string(); 
-        std::cout << "Serial port " << serial_port<<std::endl;
+        std::cout << "Serial port " << portName_ <<std::endl;
         timer_ = this->create_wall_timer(
             1000ms, std::bind(&USBSerialComm::readUSB_callback, this));
         fd_= open (portName_.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
-        if (fd < 0)
+        if (fd_ < 0)
         {
-            error_message ("error %d opening %s: %s", errno, portname, strerror (errno));
-            return;
+            //error_message ("error %d opening %s: %s", errno, portName_, strerror (errno));
+           std::cout << "Error "<< errno << " opening " << portName_ << " : " << strerror(errno) <<std::endl;
         }
         set_interface_attribs (fd_, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
         set_blocking (fd_, 1);                    // set blocking
@@ -112,7 +118,7 @@ class USBSerialComm : public rclcpp::Node
 // int n = read (fd, buf, sizeof buf);  // read up to 100 characters if ready to read
     }
     rclcpp::TimerBase::SharedPtr timer_;
-    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
+//    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
     std::string portName_;
     int fd_; 
 

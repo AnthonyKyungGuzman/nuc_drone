@@ -16,11 +16,22 @@ find_package(rclcpp REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-add_executable(usb_comm src/serial_comm_node.cpp)
-ament_target_dependencies(usb_comm rclcpp)
+add_executable(usb_comm_node src/serial_comm_node.cpp)
+ament_target_dependencies(usb_comm_node rclcpp)
 
 install(TARGETS
-  usb_comm
+  usb_comm_node
   DESTINATION lib/${PROJECT_NAME})
+
+# Install launch files.
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+
+install(DIRECTORY
+  config
+  DESTINATION share/${PROJECT_NAME}
+)
 
 ament_package()
