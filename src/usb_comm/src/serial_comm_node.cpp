@@ -136,7 +136,7 @@ class USBSerialComm : public rclcpp::Node
     void readUSB_callback()
     {
     //   publisher_->publish(message);
-        read(fd, (void*)&dataFromCube_, sizeof(cubeDataRead_t));  
+        read(fd_, (void*)&dataFromCube_, sizeof(cubeDataRead_t));  
         std::cout << "recv message "<<std::endl;
         dataFromCube_.printStruct();
 
