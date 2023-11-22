@@ -13,6 +13,26 @@
 
 using namespace std::chrono_literals;
 
+typedef struct{  
+    double valueToChange;
+}cubeDataWrite_t;
+
+typedef struct{ // UART TX buffer 256 bytes
+    uint32_t timeStamp;
+    double dt;
+    uint32_t measured_dt;
+    double changedValue;
+    void printStruct()
+    {
+        std::cout << "Time stamp " << timeStamp << " \n";
+        std::cout << "Dt " << dt << "\n";
+        std::cout << "Measured dt " << measured_dt << "\n";
+        std::cout << "Changed Value " << changedValue << "\n";
+    }
+}cubeDataRead_t; 
+
+
+
 int set_interface_attribs (int fd, int speed, int parity)
 {
         struct termios tty;
@@ -91,8 +111,10 @@ class USBSerialComm : public rclcpp::Node
         this->declare_parameter("serial_port", "/dev/ttyUSB1");
         portName_ = this->get_parameter("serial_port").as_string(); 
         std::cout << "Serial port " << portName_ <<std::endl;
+
         timer_ = this->create_wall_timer(
             1000ms, std::bind(&USBSerialComm::readUSB_callback, this));
+
         fd_= open (portName_.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
         if (fd_ < 0)
         {
@@ -102,27 +124,34 @@ class USBSerialComm : public rclcpp::Node
         set_interface_attribs (fd_, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
         set_blocking (fd_, 1);                    // set blocking
         std::cout << "Finish init \n";
+
+        dataForCube_.valueToChange = 0.0;
+        dataFromCube_ = { 0,   //timeStamp
+                          0.0, //dt
+                          0,   // measured dt
+                          0.0 }; //changed value
     }
 
   private:
     void readUSB_callback()
     {
     //   publisher_->publish(message);
-        std::cout << "sending \n";
+        int n = read(fd, (void*)&dataFromCube_, sizeof(cubeDataRead_t));  
+        std::cout << "recv message "<<std::endl;
+        dataFromCube_.printStruct();
 
-        // write (fd_, "hello!\n", 7);           // send 7 character greeting
-        // usleep ((7 + 25) * 100);             // sleep enough to transmit the 7 plus
-                                            // receive 25:  approx 100 uS per char transmit
+        dataForCube_.valueToChange = 3.4;
 
-        char buf [10];
-        int n = read(fd, buf, 4);  // read up to 100 characters if ready to read
-        std::string message(buf);
-        std::cout << "recv message " << message <<std::endl;
+        std::cout << "sending \n";  
+        write (fd_, (void*)&dataForCube_, sizeof(cubeDataWrite_t)); 
+        
     }
     rclcpp::TimerBase::SharedPtr timer_;
 //    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
     std::string portName_;
     int fd_; 
+    cubeDataWrite_t dataForCube_;
+    cubeDataRead_t dataFromCube_;
 
 };
 
