@@ -22,12 +22,22 @@ typedef struct{ // UART TX buffer 256 bytes
     double dt;
     uint32_t measured_dt;
     double changedValue;
+    bool calling_output_motors;
+    bool in_output_func; //AKGL
+    bool in_output_2_motors; //AKGL
+    bool setting_values; //AKGL
+    bool sending_2_motors; //AKGL 
     void printStruct()
     {
         std::cout << "Time stamp " << timeStamp << " \n";
         std::cout << "Dt " << dt << "\n";
         std::cout << "Measured dt " << measured_dt << "\n";
         std::cout << "Changed Value " << changedValue << "\n";
+        std::cout << "calling_output_motors " << calling_output_motors << " \n";
+        std::cout << "in_output_func " << in_output_func << "\n";
+        std::cout << "in_output_2_motors " << in_output_2_motors << "\n";
+        std::cout << "setting_values " << setting_values << "\n";
+        std::cout << "sending_2_motors " << sending_2_motors << "\n";
     }
 }cubeDataRead_t; 
 
@@ -129,7 +139,12 @@ class USBSerialComm : public rclcpp::Node
         dataFromCube_ = { 0,   //timeStamp
                           0.0, //dt
                           0,   // measured dt
-                          0.0 }; //changed value
+                          0.0, //changed value
+                          false, // calling_output_motors
+                          false, // in_output_func
+                          false, // in_output_2_motors
+                          false, // setting_values
+                          false }; //sending_2_motors
     }
 
   private:
@@ -137,13 +152,13 @@ class USBSerialComm : public rclcpp::Node
     {
     //   publisher_->publish(message);
         read(fd_, (void*)&dataFromCube_, sizeof(cubeDataRead_t));  
-        std::cout << "recv message "<<std::endl;
+        std::cout << "recv message  ********************* "<<std::endl;
         dataFromCube_.printStruct();
 
-        dataForCube_.valueToChange = 3.4;
+        // dataForCube_.valueToChange = 3.4;
 
-        std::cout << "sending \n";  
-        write (fd_, (void*)&dataForCube_, sizeof(cubeDataWrite_t)); 
+        // std::cout << "sending \n";  
+        // write (fd_, (void*)&dataForCube_, sizeof(cubeDataWrite_t)); 
         
     }
     rclcpp::TimerBase::SharedPtr timer_;
