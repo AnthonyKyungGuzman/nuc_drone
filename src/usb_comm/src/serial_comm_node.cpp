@@ -22,11 +22,11 @@ typedef struct{ // UART TX buffer 256 bytes
     double dt;
     uint32_t measured_dt;
     double changedValue;
-    bool calling_output_motors;
-    bool in_output_func; //AKGL
-    bool in_output_2_motors; //AKGL
-    bool setting_values; //AKGL
-    bool sending_2_motors; //AKGL 
+    int calling_output_motors;
+    int in_output_func; //AKGL
+    int in_output_2_motors; //AKGL
+    int setting_values; //AKGL
+    int sending_2_motors; //AKGL 
     void printStruct()
     {
         std::cout << "Time stamp " << timeStamp << " \n";
@@ -140,18 +140,18 @@ class USBSerialComm : public rclcpp::Node
                           0.0, //dt
                           0,   // measured dt
                           0.0, //changed value
-                          false, // calling_output_motors
-                          false, // in_output_func
-                          false, // in_output_2_motors
-                          false, // setting_values
-                          false }; //sending_2_motors
+                          0, // calling_output_motors
+                          0, // in_output_func
+                          0, // in_output_2_motors
+                          0, // setting_values
+                          0 }; //sending_2_motors
     }
 
   private:
     void readUSB_callback()
     {
     //   publisher_->publish(message);
-        read(fd_, (void*)&dataFromCube_, sizeof(cubeDataRead_t));  
+        read(fd_, (char*)&dataFromCube_, sizeof(cubeDataRead_t));  
         std::cout << "recv message  ********************* "<<std::endl;
         dataFromCube_.printStruct();
 
